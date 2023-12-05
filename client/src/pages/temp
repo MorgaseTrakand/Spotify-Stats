@@ -1,0 +1,51 @@
+  import '../App.css';
+  import React, { useContext } from 'react';
+  import MyContext from '../myContext';
+
+  function AuthorizedPage() {
+    const queryString = window.location.search; // Gets the query string (?param1=value1&param2=value2)
+    const params = new URLSearchParams(queryString);
+    const code = params.get('code');
+    const state = params.get('state');
+
+    // console.log("React code" + code)
+    // console.log("React state" + state)
+    const { accessToken, setAccessToken} = useContext(MyContext);
+
+    const body = {
+      code: code,
+      state: state
+    }
+    const requestOptions={
+      method:"POST",
+      headers:{
+          'content-type':'application/json',
+      },
+      body:JSON.stringify(body)
+  }
+
+    fetch(`http://127.0.0.1:5000/auth/callback?code=${code}&state=${state}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log(data)
+      // setAccessToken(data.accessToken)
+    })
+    .catch(error => {
+      console.error('Fetch error:', error);
+    });
+
+
+    return (
+      <div>
+          <h1>Dashboard</h1>
+          <h2>Access Token: {accessToken} </h2>
+      </div>
+    );
+  }
+
+  export default AuthorizedPage;
